@@ -35,6 +35,10 @@ function replaceImageUrlsWithLocal(html, slug, urlMap) {
   return modified;
 }
 
+function stripHtml(html) {
+  return html.replace(/<[^>]+>/g, '').trim();
+}
+
 const indexList = [];
 
 const postsRes = await fetch(`${API_URL}/posts?per_page=100&_embed`);
@@ -77,8 +81,11 @@ for (const post of posts) {
 
   // 3. Kategóriák és címkék
   const terms = post._embedded?.['wp:term'] || [];
-  const categories = (terms[0] || []).map(t => ({ name: t.name, slug: t.slug }));
-  const tags = (terms[1] || []).map(t => ({ name: t.name, slug: t.slug }));
+  const categories = (terms[0] || []).map(t => t.name);
+  const tags = (terms[1] || []).map(t => t.name);
+
+  // Szerző
+  const author = post._embedded?.author?.[0]?.name || '';
 
   // 4. SEO (Rank Math)
   const rankSeo = post.rank_math_seo || {};
@@ -112,9 +119,11 @@ for (const post of posts) {
   }
 
   const canonical = rankSeo.canonical || `https://your-site.com/${slug}/`;
+  const excerptHtml = post.excerpt?.rendered || '';
+  const excerpt = stripHtml(excerptHtml);
   const seo = {
     title: rankSeo.title || post.title.rendered,
-    description: rankSeo.description || post.excerpt?.rendered || '',
+    description: rankSeo.description || excerpt,
     og_image: ogImageUrl || '',
     twitter_image: twitterImageUrl || '',
     robots: rankSeo.robots || '',
@@ -124,19 +133,13 @@ for (const post of posts) {
   const frontmatter = {
     title: post.title.rendered,
     slug,
-    date: post.date,
+    pubDate: post.date.split('T')[0],
+    author,
     coverImage,
     categories,
     tags,
-    excerpt: post.excerpt?.rendered || '',
-    seo: {
-      title: rankSeo.title || post.title.rendered,
-      description: rankSeo.description || '',
-      og_image: ogImageUrl || '',
-      twitter_image: twitterImageUrl || '',
-      robots: rankSeo.robots || '',
-      canonical: canonical.endsWith('/') ? canonical : canonical + '/',
-    }
+    excerpt,
+    seo
   };
 
   const normalizedContent = cleanedContent
@@ -154,8 +157,9 @@ for (const post of posts) {
   indexList.push({
     slug,
     title: post.title.rendered,
-    excerpt: post.excerpt?.rendered || '',
-    date: post.date,
+    excerpt,
+    pubDate: post.date.split('T')[0],
+    author,
     coverImage,
     categories,
     tags
