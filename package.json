@@ -1,0 +1,29 @@
+{
+  "name": "headless-wp-exporter",
+  "version": "1.0.0",
+  "description": "",
+  "main": "fetch-json.js",
+  "scripts": {
+    "export:json": "node fetch-json.js",
+    "export:md": "node fetch-md.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tolvajsanyi/Headless-WP-Exporter.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/tolvajsanyi/Headless-WP-Exporter/issues"
+  },
+  "homepage": "https://github.com/tolvajsanyi/Headless-WP-Exporter#readme",
+  "dependencies": {
+    "gray-matter": "^4.0.3",
+    "jsdom": "^26.1.0",
+    "node-fetch": "^3.3.2",
+    "sharp": "^0.34.3"
+  }
+}
