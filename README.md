@@ -6,7 +6,8 @@ Export WordPress posts from a headless WordPress instance to local Markdown file
 - Fetches posts via the WordPress REST API (`/wp-json/wp/v2`)
 - Downloads featured images and inline content images
 - Saves posts as `.md` files with [YAML frontmatter](https://jekyllrb.com/docs/front-matter/)
-- Preserves HTML content (no Markdown conversion)
+- Converts HTML content to Markdown using Turndown
+- Astro-friendly frontmatter with pubDate, description, excerpt, and SEO info
 - Extracts SEO metadata (Rank Math compatible)
 - Cleans up HTML output (OCD-friendly 🧼)
 - Outputs index file with basic metadata (`index.json`)
