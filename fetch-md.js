@@ -6,7 +6,10 @@ import { JSDOM } from 'jsdom';
 import sharp from 'sharp';
 import matter from 'gray-matter';
 
-const API_URL = 'https://your-site.com/wp-json/wp/v2';
+import TurndownService from 'turndown';
+const turndownService = new TurndownService();
+
+const API_URL = 'https://businessbloom.consulting/wp-json/wp/v2';
 const POSTS_DIR = './src/content/posts/';
 const IMAGES_DIR = './src/assets/images/blog-images/';
 const INDEX_FILE = './src/content/posts/index.json';
@@ -118,7 +121,7 @@ for (const post of posts) {
     }
   }
 
-  const canonical = rankSeo.canonical || `https://your-site.com/${slug}/`;
+  const canonical = rankSeo.canonical || `https://businessbloom.consulting/${slug}/`;
   const excerptHtml = post.excerpt?.rendered || '';
   const excerpt = stripHtml(excerptHtml);
   const seo = {
@@ -133,7 +136,8 @@ for (const post of posts) {
   const frontmatter = {
     title: post.title.rendered,
     slug,
-    pubDate: post.date.split('T')[0],
+    pubDate: new Date(post.date).toISOString().split('T')[0], // javított Date formátum
+    description: excerpt || post.title.rendered,              // kötelező description mező
     author,
     coverImage,
     categories,
@@ -142,23 +146,15 @@ for (const post of posts) {
     seo
   };
 
-  const normalizedContent = cleanedContent
-  .replace(/\n\s*\n/g, '\n')                         // duplikált üres sor törlése
-  .replace(/>\s*\n\s*</g, '><')                      // HTML tagek közötti sortörés kiszedése
-  .replace(/<\/li>\s*\n\s*<li>/g, '</li><li>')       // listaelemek közti sortörés kiszedése
-  .replace(/<li>\s*<p>/g, '<li>')                    // <li><p> → <li>
-  .replace(/<\/p>\s*<\/li>/g, '</li>')               // </p></li> → </li>
-  .replace(/^\s+|\s+$/gm, '');                       // sor eleji/végi whitespace
-
-
-  const mdContent = matter.stringify(normalizedContent, frontmatter);
+  const markdownBody = turndownService.turndown(cleanedContent);
+  const mdContent = matter.stringify(markdownBody, frontmatter);
   await fs.writeFile(postPath, mdContent, 'utf8');
 
   indexList.push({
     slug,
     title: post.title.rendered,
     excerpt,
-    pubDate: post.date.split('T')[0],
+    pubDate: new Date(post.date).toISOString().split('T')[0], // javított Date formátum
     author,
     coverImage,
     categories,
