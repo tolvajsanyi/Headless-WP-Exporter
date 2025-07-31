@@ -81,3 +81,7 @@ But we keep:
   "export:json": "node fetch-json.js"
 }
 ```
+
+## License
+
+[GPL-3.0](https://www.gnu.org/licenses/quick-guide-gplv3.html)
